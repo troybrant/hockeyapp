@@ -1,4 +1,4 @@
-__version__ = '0.4.0'
+from ._version import __version__
 
 from .app import Application
 from .app import Applications

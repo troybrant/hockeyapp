@@ -146,7 +146,7 @@ class Application(api.APIRequest):
         return response
 
     def crash_groups(self, version_id=None, symbolicated=False, offset=1,
-                     limit=25, order='asc'):
+                     limit=25, order='asc', sort_by='date'):
         """List all crashes grouped by reason for an app. If version_id is
         specified, return all of the crash groupings for that version.
 
@@ -155,11 +155,16 @@ class Application(api.APIRequest):
         :param int offset: The offset for the page of feedback
         :param int limit: The maximum number of entries per page (25, 50, 100)
         :param str order: Order of items in list, ``asc`` or ``desc``
+        :param str sort: Sort by ``date``, ``class``, ``number_of_crashes``, ``last_crash_at``
         :rtype: Feedback
 
         """
         if order not in ['asc', 'desc']:
             raise ValueError('order must either be "asc" or "desc"')
+
+        valid_sort_by_values = ['date', 'class', 'number_of_crashes', 'last_crash_at']
+        if sort_by not in valid_sort_by_values:
+            raise ValueError('sort_by must be "' + '" or "'.join(valid_sort_by_values) + '"')
 
         parts = ['apps', self._app_id, 'crash_reasons']
         if version_id:
@@ -170,7 +175,8 @@ class Application(api.APIRequest):
                              data={'symbolication': int(symbolicated),
                                    'page': offset,
                                    'per_page': limit,
-                                   'order': order})
+                                   'order': order,
+                                   'sort' : sort_by})
         return CrashGroups(response.get('crash_reasons', []),
                            response.get('total_entries', 0),
                            response.get('total_pages', 0),
